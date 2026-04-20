@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEEN - 당신의 스타일을 찾아줄게</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1D9E75;
+            --primary-light: #E1F5EE;
+            --dark: #0F3F35;
+            --gray: #F5F5F5;
+            --text: #2C2C2A;
+            --text-light: #666;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: var(--text);
+            background: #FAFAFA;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: white;
+            border-bottom: 0.5px solid #E0E0E0;
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary);
+            letter-spacing: -1px;
+        }
+
+        nav a {
+            color: var(--text-light);
+            text-decoration: none;
+            margin-left: 30px;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        nav a:hover {
+            color: var(--primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(135deg, var(--primary-light) 0%, white 100%);
+        }
+
+        .hero h1 {
+            font-size: 36px;
+            margin-bottom: 15px;
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: var(--text-light);
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Search Section */
+        .search-section {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            max-width: 600px;
+            margin: -40px auto 60px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .search-section h2 {
+            font-size: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            color: var(--dark);
+        }
+
+        .upload-area {
+            border: 2px dashed var(--primary);
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--primary-light);
+        }
+
+        .upload-area:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--dark);
+        }
+
+        .upload-area.drag-over {
+            background: var(--primary);
+            border-color: var(--dark);
+            color: white;
+        }
+
+        .upload-area p {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .upload-area span {
+            display: block;
+            font-size: 13px;
+            margin-top: 8px;
+            opacity: 0.8;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        /* Category Filter */
+        .category-filter {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid #E0E0E0;
+        }
+
+        .category-filter label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .category-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .category-btn {
+            padding: 8px 16px;
+            border: 1px solid #DDD;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .category-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .category-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Results Section */
+        .results-section {
+            display: none;
+            padding: 60px 20px;
+        }
+
+        .results-section.active {
+            display: block;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .results-header h2 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+        }
+
+        .product-card:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            transform: translateY(-4px);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 280px;
+            background: var(--gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 16px;
+        }
+
+        .product-name {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 8px;
+            color: var(--text);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .product-price {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .price {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .discount {
+            font-size: 12px;
+            background: #FFE0E0;
+            color: #C41E3A;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .product-category {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 12px;
+        }
+
+        .similarity {
+            font-size: 12px;
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .buy-btn {
+            width: 100%;
+            padding: 10px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .buy-btn:hover {
+            background: var(--dark);
+        }
+
+        /* Info Section */
+        .info-section {
+            padding: 60px 20px;
+            background: var(--primary-light);
+            margin-top: 40px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .info-card {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .info-card h3 {
+            font-size: 18px;
+            margin-bottom: 12px;
+            color: var(--dark);
+        }
+
+        .info-card p {
+            font-size: 14px;
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text);
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            font-size: 13px;
+            margin-top: 60px;
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        /* Loading & Empty States */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--primary-light);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            color: var(--text-light);
+            margin-bottom: 20px;
+        }
+
+        .reset-btn {
+            padding: 12px 24px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .reset-btn:hover {
+            background: var(--dark);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 24px;
+            }
+
+            .hero p {
+                font-size: 16px;
+            }
+
+            .search-section {
+                padding: 24px;
+                margin: -20px auto 40px;
+            }
+
+            .results-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 16px;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            nav {
+                display: flex;
+                gap: 20px;
+            }
+
+            nav a {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">SEEN</div>
+                <nav>
+                    <a href="#search">검색</a>
+                    <a href="#about">소개</a>
+                    <a href="#contact">문의</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>당신의 스타일을 찾아줄게</h1>
+            <p>마음에 드는 옷, 가구, 액세서리 사진만 보여주세요.<br>
+            명품부터 저가까지 모든 스타일을 찾아드립니다.</p>
+        </div>
+    </section>
+
+    <!-- Search Section -->
+    <div class="container">
+        <div class="search-section" id="search">
+            <h2>📷 사진 업로드</h2>
+            
+            <div class="upload-area" id="uploadArea">
+                <p>사진을 드래그하거나 클릭해주세요</p>
+                <span>jpg, png 파일 지원</span>
+                <input type="file" id="fileInput" accept="image/*">
+            </div>
+
+            <div class="category-filter">
+                <label>카테고리 선택</label>
+                <div class="category-buttons">
+                    <button class="category-btn active" data-category="all">모두</button>
+                    <button class="category-btn" data-category="fashion">패션</button>
+                    <button class="category-btn" data-category="furniture">가구</button>
+                    <button class="category-btn" data-category="accessories">액세서리</button>
+                    <button class="category-btn" data-category="beauty">뷰티</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    <section class="results-section" id="resultsSection">
+        <div class="container">
+            <div class="results-header">
+                <h2>당신 스타일과 비슷한 상품</h2>
+                <p id="resultCount"></p>
+            </div>
+            <div class="results-grid" id="resultsGrid"></div>
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <p>검색 결과가 없습니다.</p>
+                <button class="reset-btn" onclick="resetSearch()">다시 검색하기</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Loading -->
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>AI가 당신의 스타일을 분석 중이에요...</p>
+    </div>
+
+    <!-- Info Section -->
+    <section class="info-section" id="about">
+        <div class="container">
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>🎯 정확한 스타일 매칭</h3>
+                    <p>AI 이미지 분석으로 색상, 형태, 소재까지 정확하게 매칭해드립니다.</p>
+                </div>
+                <div class="info-card">
+                    <h3>💰 최저가 보장</h3>
+                    <p>수백만 개 상품 중에서 같은 스타일의 가장 저렴한 상품을 찾아드립니다.</p>
+                </div>
+                <div class="info-card">
+                    <h3>⚡ 빠른 검색</h3>
+                    <p>단 몇 초 만에 당신의 스타일과 일치하는 상품들을 찾을 수 있습니다.</p>
+                </div>
+                <div class="info-card">
+                    <h3>🛍️ 신뢰할 수 있는 쇼핑몰</h3>
+                    <p>쿠팡, 무신사, G마켓 등 신뢰할 수 있는 쇼핑몰과 연동되어 있습니다.</p>
+                </div>
+                <div class="info-card">
+                    <h3>📱 모바일 최적화</h3>
+                    <p>언제 어디서나 핸드폰으로 편하게 스타일을 찾을 수 있습니다.</p>
+                </div>
+                <div class="info-card">
+                    <h3>🔒 개인정보 보호</h3>
+                    <p>당신의 검색 기록과 개인정보는 안전하게 보호됩니다.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="container">
+            <p>&copy; 2024 SEEN. All rights reserved.</p>
+            <p>
+                <a href="#">개인정보처리방침</a> | 
+                <a href="#">이용약관</a> | 
+                <a href="#">문의하기</a>
+            </p>
+            <p style="margin-top: 16px; opacity: 0.8;">contact@seen.kr</p>
+        </div>
+    </footer>
+
+    <script>
+        // Sample Products Database
+        const productsDB = [
+            // Fashion
+            {
+                id: 1,
+                name: "세미 오버핏 베이지 코트",
+                category: "fashion",
+                price: 89000,
+                originalPrice: 180000,
+                image: "👔",
+                shop: "무신사",
+                similarity: 95,
+                url: "https://example.com/product1"
+            },
+            {
+                id: 2,
+                name: "캐주얼 블랙 데님 재킷",
+                category: "fashion",
+                price: 49000,
+                originalPrice: 120000,
+                image: "👕",
+                shop: "쿠팡",
+                similarity: 92,
+                url: "https://example.com/product2"
+            },
+            {
+                id: 3,
+                name: "미니멀 화이트 티셔츠",
+                category: "fashion",
+                price: 19000,
+                originalPrice: 45000,
+                image: "👕",
+                shop: "지마켓",
+                similarity: 88,
+                url: "https://example.com/product3"
+            },
+            {
+                id: 4,
+                name: "롱 플리츠 스커트",
+                category: "fashion",
+                price: 59000,
+                originalPrice: 150000,
+                image: "👗",
+                shop: "무신사",
+                similarity: 90,
+                url: "https://example.com/product4"
+            },
+            // Furniture
+            {
+                id: 5,
+                name: "북유럽식 2인 소파 그레이",
+                category: "furniture",
+                price: 299000,
+                originalPrice: 899000,
+                image: "🛋️",
+                shop: "쿠팡",
+                similarity: 94,
+                url: "https://example.com/product5"
+            },
+            {
+                id: 6,
+                name: "오크 원목 침대 (Q 사이즈)",
+                category: "furniture",
+                price: 498000,
+                originalPrice: 1500000,
+                image: "🛏️",
+                shop: "IKEA",
+                similarity: 91,
+                url: "https://example.com/product6"
+            },
+            {
+                id: 7,
+                name: "화이트 거실 테이블",
+                category: "furniture",
+                price: 159000,
+                originalPrice: 450000,
+                image: "🪑",
+                shop: "아마존",
+                similarity: 87,
+                url: "https://example.com/product7"
+            },
+            {
+                id: 8,
+                name: "식탁 의자 (4개 세트)",
+                category: "furniture",
+                price: 199000,
+                originalPrice: 600000,
+                image: "🪑",
+                shop: "지마켓",
+                similarity: 85,
+                url: "https://example.com/product8"
+            },
+            // Accessories
+            {
+                id: 9,
+                name: "베이지 크로스백",
+                category: "accessories",
+                price: 49000,
+                originalPrice: 180000,
+                image: "👜",
+                shop: "무신사",
+                similarity: 93,
+                url: "https://example.com/product9"
+            },
+            {
+                id: 10,
+                name: "블랙 토트백",
+                category: "accessories",
+                price: 39000,
+                originalPrice: 150000,
+                image: "👜",
+                shop: "쿠팡",
+                similarity: 89,
+                url: "https://example.com/product10"
+            },
+            {
+                id: 11,
+                name: "골드 체인 목걸이",
+                category: "accessories",
+                price: 19000,
+                originalPrice: 80000,
+                image: "💍",
+                shop: "지마켓",
+                similarity: 86,
+                url: "https://example.com/product11"
+            },
+            // Beauty
+            {
+                id: 12,
+                name: "비건 쿠션 파운데이션",
+                category: "beauty",
+                price: 29000,
+                originalPrice: 85000,
+                image: "💄",
+                shop: "쿠팡",
+                similarity: 90,
+                url: "https://example.com/product12"
+            },
+            {
+                id: 13,
+                name: "틴트 립스틱 (베이지)",
+                category: "beauty",
+                price: 9000,
+                originalPrice: 35000,
+                image: "💄",
+                shop: "무신사",
+                similarity: 88,
+                url: "https://example.com/product13"
+            }
+        ];
+
+        let selectedCategory = 'all';
+        let uploadedImage = null;
+
+        // Upload Area Click
+        document.getElementById('uploadArea').addEventListener('click', function() {
+            document.getElementById('fileInput').click();
+        });
+
+        // Drag & Drop
+        const uploadArea = document.getElementById('uploadArea');
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileSelect(files[0]);
+            }
+        });
+
+        // File Input Change
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+
+        // Handle File Selection
+        function handleFileSelect(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                uploadedImage = e.target.result;
+                performSearch();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Category Filter
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                selectedCategory = this.dataset.category;
+                if (uploadedImage) {
+                    performSearch();
+                }
+            });
+        });
+
+        // Perform Search
+        function performSearch() {
+            document.getElementById('resultsSection').classList.add('active');
+            document.getElementById('loading').classList.add('active');
+
+            // Simulate AI analysis delay
+            setTimeout(() => {
+                document.getElementById('loading').classList.remove('active');
+                displayResults();
+            }, 1500);
+        }
+
+        // Display Results
+        function displayResults() {
+            const resultsGrid = document.getElementById('resultsGrid');
+            const emptyState = document.getElementById('emptyState');
+            resultsGrid.innerHTML = '';
+
+            // Filter products
+            let filteredProducts = productsDB;
+            if (selectedCategory !== 'all') {
+                filteredProducts = productsDB.filter(p => p.category === selectedCategory);
+            }
+
+            // Sort by similarity
+            filteredProducts.sort((a, b) => b.similarity - a.similarity);
+
+            if (filteredProducts.length === 0) {
+                emptyState.style.display = 'block';
+                document.getElementById('resultCount').textContent = '';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            document.getElementById('resultCount').textContent = `${filteredProducts.length}개의 상품을 찾았습니다`;
+
+            filteredProducts.forEach(product => {
+                const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <div class="product-image">${product.image}</div>
+                    <div class="product-info">
+                        <div class="similarity">일치도 ${product.similarity}%</div>
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-category">${product.shop}</div>
+                        <div class="product-price">
+                            <span class="price">₩${product.price.toLocaleString()}</span>
+                            ${discount > 0 ? `<span class="discount">${discount}% OFF</span>` : ''}
+                        </div>
+                        <button class="buy-btn" onclick="window.open('${product.url}', '_blank')">상세보기</button>
+                    </div>
+                `;
+                resultsGrid.appendChild(card);
+            });
+        }
+
+        // Reset Search
+        function resetSearch() {
+            uploadedImage = null;
+            document.getElementById('fileInput').value = '';
+            document.getElementById('resultsSection').classList.remove('active');
+            document.getElementById('uploadArea').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
